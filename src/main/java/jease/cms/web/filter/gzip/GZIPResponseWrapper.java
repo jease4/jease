@@ -6,12 +6,17 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import jfix.zk.Modal;
 
 public class GZIPResponseWrapper extends HttpServletResponseWrapper {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GZIPResponseWrapper.class);
+
     private final HttpServletResponse origResponse;
     private final String cacheKey;
     private GZIPResponseStream stream;
@@ -48,7 +53,14 @@ public class GZIPResponseWrapper extends HttpServletResponseWrapper {
                 }
             }
         } catch (IOException e) {
-            Modal.exception(e);
+			LOGGER.error("GZIPResponseWrapper.finishResponse()", e);
+			if (org.zkoss.zk.ui.Executions.getCurrent() != null) {
+			    try {
+			        Modal.exception(e);
+			    } catch (Exception ex) {
+			        // nothing, we can safely continue
+			    }
+			}
         }
     }
 

@@ -232,6 +232,10 @@ public class ObjectDatabase {
     public <E> E query(Supplier<E> supplier) {
         lock.readLock().lock();
         try {
+            if (supplierCache == null) {
+                E result = supplier.get();
+                return result;
+            }
             E result = (E) supplierCache.get(supplier);
             if (result == null) {
                 result = supplier.get();
