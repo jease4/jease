@@ -16,7 +16,19 @@
  */
 package jease;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import com.thoughtworks.xstream.XStream;
+
 import jease.cmf.domain.Node;
 import jease.cmf.web.node.NodeEditor;
 import jease.cms.domain.Content;
@@ -26,26 +38,22 @@ import jease.cms.web.content.editor.property.PropertyEditor;
 import jfix.db4o.Database;
 import jfix.util.Reflections;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.util.*;
-import java.util.function.Supplier;
-
 /**
  * Service to load component definitions for the CMS (domain class,
  * corresponding editor, [view], [icon]) from XML-file.
- * 
+ *
  * The service is able to process several XML files stored in a dedicated
  * location (META-INF/jease/registry.xml), so bundling classes with an
  * appropriate XML-file into a single jar allows to create drop in modules for
  * Jease.
- * 
+ *
  * The Registry provides also access to central parameters. Parameters are
  * simply key/value-pairs of strings which are stored in the database.
  */
 public class Registry {
 
     private static class ParameterMap implements Supplier<Map<String, Parameter>> {
+        @Override
         public Map<String, Parameter> get() {
             Map<String, Parameter> map = new HashMap<>();
             for (Parameter parameter : Database.query(Parameter.class)) {
@@ -72,12 +80,13 @@ public class Registry {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static void init(String resource) throws Exception {
         XStream xstream = new XStream();
+        xstream.allowTypesByWildcard(new String[] { "jease.**" });
         xstream.alias("jease", List.class);
         xstream.alias("component", Component.class);
-        Enumeration<URL> urls = Registry.class.getClassLoader().getResources(
-                resource);
+        Enumeration<URL> urls = Registry.class.getClassLoader().getResources(resource);
         while (urls.hasMoreElements()) {
             InputStream url = urls.nextElement().openStream();
             for (Component component : (List<Component>) xstream.fromXML(url)) {
