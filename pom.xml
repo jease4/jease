@@ -9,8 +9,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
-        <lucene.version>8.11.1</lucene.version>
-        <mylyn.wikitext.version>3.0.42</mylyn.wikitext.version>
+        <lucene.version>9.12.2</lucene.version>
+        <solr.version>9.8.1</solr.version>
+        <mylyn.wikitext.version>3.0.48.202308291007</mylyn.wikitext.version>
     </properties>
     <repositories>
         <repository>
@@ -31,7 +32,7 @@
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>1.4.17</version>
+            <version>1.4.21</version>
         </dependency>
         <dependency>
             <groupId>org.zoodb</groupId>
@@ -72,7 +73,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
+            <artifactId>lucene-analysis-common</artifactId>
             <version>${lucene.version}</version>
         </dependency>
         <dependency>
@@ -83,7 +84,7 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>${lucene.version}</version>
+            <version>${solr.version}</version>
         </dependency>
         <dependency>
           <groupId>org.apache.tika</groupId>

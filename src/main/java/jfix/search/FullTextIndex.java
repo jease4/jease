@@ -16,6 +16,9 @@
  */
 package jfix.search;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.miscellaneous.LimitTokenCountAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -27,13 +30,10 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FullTextIndex<E> {
 
@@ -41,7 +41,7 @@ public class FullTextIndex<E> {
     private static final String[] STRINGS_TO_QUOTE = new String[]{"-", "&", "!", "{", "}", "[", "]", ":", "?"};
 
     static {
-        BooleanQuery.setMaxClauseCount(BooleanQuery.getMaxClauseCount() * 10);
+        //BooleanQuery.setMaxClauseCount(BooleanQuery.getMaxClauseCount() * 10);
     }
 
     private List<E> objects;
@@ -58,11 +58,11 @@ public class FullTextIndex<E> {
             Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig config =  new IndexWriterConfig(new LimitTokenCountAnalyzer(analyzer, Integer.MAX_VALUE));
 
-            indexDirectory = new RAMDirectory();
+            indexDirectory = new ByteBuffersDirectory();
             indexWriter = new IndexWriter(indexDirectory, config);
 
             queryParser = new QueryParser("text", analyzer);
-            queryParser.setDefaultOperator(QueryParser.AND_OPERATOR);
+            queryParser.setDefaultOperator(QueryParserBase.AND_OPERATOR);
 
             fulltext = new TextField("text", "", Field.Store.NO);
 
