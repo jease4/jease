@@ -48,7 +48,7 @@ public class GZIPResponseWrapper extends HttpServletResponseWrapper {
             if (writer != null) {
                 writer.close();
             } else {
-                if (stream != null) {
+                if (stream != null && !stream.closed()) {
                     stream.close();
                 }
             }

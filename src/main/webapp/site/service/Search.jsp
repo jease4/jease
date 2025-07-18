@@ -7,7 +7,6 @@ if(solrurl.equals("")){//use jease result
 <%@page import="java.util.Collection"%>
 <%@page import="java.util.List"%>
 <%@page import="org.apache.commons.lang3.ArrayUtils"%>
-<%@page import="org.apache.commons.lang3.StringEscapeUtils"%>
 <%@page import="jfix.util.I18N"%>
 <%@page import="jease.Names"%>
 <%@page import="jease.cms.domain.Access"%>
@@ -15,7 +14,12 @@ if(solrurl.equals("")){//use jease result
 <%@page import="jease.cms.domain.User"%>
 <%@page import="jease.site.Authorizations"%>
 <%@page import="jease.site.Fulltexts"%>
-<h1><%=I18N.get("Search_results_for")%> &quot;<%=StringEscapeUtils.escapeHtml4(request.getParameter("query"))%>&quot;</h1>
+<%@page import="jease.site.HtmlSanitizer"%>
+<%
+  String q = request.getParameter("query");
+  q = HtmlSanitizer.sanitize(q);
+%>
+<h1><%=I18N.get("Search_results_for")%> &quot;<%=q%>&quot;</h1>
 <%
 	final Collection<Access> authorizations = (Collection<Access>) session.getAttribute(Names.JEASE_SITE_AUTHORIZATIONS);
 	final User user = (User) session.getAttribute(User.class.toString());
@@ -43,6 +47,6 @@ if(solrurl.equals("")){//use jease result
 %>
 <p><%=I18N.get("No_results")%>.</p>
 <% } %>
-<%}else{//use solr result%>
+<%} else{ // use solr result%>
 <%@include file="/site/service/Solr.jsp" %>
 <%}%>

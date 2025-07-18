@@ -1,10 +1,10 @@
+<%@page import="jease.site.HtmlSanitizer"%>
 <%@page import="jease.site.Solr"%>
 <%@page import="org.apache.solr.client.solrj.response.FacetField"%>
 <%@page import="org.apache.solr.client.solrj.response.QueryResponse"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.util.List"%>
-<%@page import="org.apache.commons.lang3.StringEscapeUtils"%>
 <%@page import="org.apache.solr.common.SolrDocument"%>
 <%@page import="org.apache.solr.common.SolrDocumentList"%>
 <%@page import="java.util.Map"%>
@@ -30,15 +30,21 @@
         sort = "0";
     }
     if (null == page2) {
-        page2 = "/site/service/search.jsp";
+        page2 = "/site/service/Search.jsp";
     }
     List<jease.site.Solr.items> result = s.getresult(q, p, fq, sort);
+    
+    q = HtmlSanitizer.sanitize(q);
+    p = HtmlSanitizer.sanitize(p);
+    fq = HtmlSanitizer.sanitize(fq);
+    page2 = HtmlSanitizer.sanitize(page2);
+    sort = HtmlSanitizer.sanitize(sort);
 %>
 <div class="row">
     <div class="col-md-8">
         <form class="form-group" action="<%=request.getContextPath()%>/" method="get">
             <div class="input-icon mb-3">
-                <input type="search" name="query" <% if (request.getParameter("query") != null) {%>value="<%= StringEscapeUtils.escapeHtml4(request.getParameter("query"))%>"<% } else { %>value="Enter your search..." onfocus="this.value = '';"<% } %>  class="form-control" placeholder="Search for...">
+                <input type="search" name="query" <% if (!q.isEmpty()) {%>value="<%= q%>"<% } else { %>value="Enter your search..." onfocus="this.value = '';"<% } %>  class="form-control" placeholder="Search for...">
                 <input type="hidden" name="page" value="/site/service/Search.jsp" />
                 <span class="input-icon-addon">
                     <i class="fe fe-search"></i>
@@ -103,7 +109,7 @@
                         <%}
                             }%>
                     <div class="list-group-item list-group-item-action d-flex align-items-center ">
-                        <a href="<%=request.getContextPath()%>/?query=&page=<%=page2%>" class="btn btn-danger">Remove all fillter</a>
+                        <a href="<%=request.getContextPath()%>/?query=&page=<%=page2%>" class="btn btn-danger">Remove all filter</a>
                     </div>
                 </div>
             </div>

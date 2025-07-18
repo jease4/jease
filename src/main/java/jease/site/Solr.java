@@ -1,4 +1,9 @@
 package jease.site;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by mnm
  * User: mnm
@@ -8,16 +13,11 @@ package jease.site;
  */
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.HttpJdkSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public class Solr {
     public String SOLR_URL;
@@ -33,8 +33,9 @@ public class Solr {
 
     public List<items> getresult(String q, String p,String fq,String sort) {
         List<items> result = new ArrayList<>();
+        if (SOLR_URL == null || SOLR_URL.isEmpty()) return result;
         try {
-            SolrClient client = new HttpSolrClient.Builder(SOLR_URL).build();
+            SolrClient client = new HttpJdkSolrClient.Builder(SOLR_URL).build();
             SolrQuery query = new SolrQuery();
             if (q.length() == 0) {
                 q = "*:*";
@@ -100,7 +101,7 @@ public class Solr {
                 SolrDocument rs = results.get(i);
                 System.out.println();
                 items bi = new items();
-                String main = "", tag = "", title = "";
+                String main = "", title = "";
                 Map<String, List<String>> highlightedFieldMap = hitHighlightedMap.get(rs.getFieldValue("id"));
                 if (highlightedFieldMap != null) {
                     List<String> highlightedList = highlightedFieldMap.get("title");
@@ -128,7 +129,7 @@ public class Solr {
         } catch (Exception s) {
             s.printStackTrace();
         }
-        System.out.println("size of output" + result.size());
+        System.out.println("size of output: " + result.size());
         return result;
     }
     public class items{

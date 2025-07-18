@@ -8,6 +8,7 @@
 <%@page import="jease.cms.domain.Content" %>
 <%@page import="jease.cms.domain.User" %>
 <%@page import="jease.site.Authorizations" %>
+<%@page import="jease.site.HtmlSanitizer" %>
 <%@page import="jease.site.Templates" %>
 <%@ page import="java.net.URI" %>
 <%@ page import="java.net.URISyntaxException" %>
@@ -50,10 +51,20 @@
     // If node is page-like content (e.g. text) and no file-parameter exists in request,
     // then include template, otherwise forward (e.g. to stream binary content).
     if (node.isPage() && request.getParameter("file") == null) {
-        String template = preventTraversal(request.getParameter("page"));
-        if (isValidTemplate(request, template)) pageTemplate = template;
+        String pageParam = request.getParameter("page");
+        String template = preventTraversal(pageParam);
+        if (isValidTemplate(request, template)) {
+            if (template != null && !template.isEmpty()) {
+                String templateFix = HtmlSanitizer.sanitize(template);
+                if (!template.equals(templateFix)) {
+                    System.out.println("Requested page template: " + template);
+                    template = templateFix;
+                    System.out.println("Sanitized page template: " + template);
+                }
+            }
+            pageTemplate = template;
+        }
         request.setAttribute("Page.Template", pageTemplate);
-
         String design = Registry.getParameter(Names.JEASE_SITE_DESIGN);
         forwardPageByDesign(application, pageContext, request, response, design);
     } else {
@@ -62,21 +73,22 @@
 
 %>
 <%! private static String preventTraversal(String template) {
-    if (template != null) {
-        try {
-            template = new URI(template).normalize().getPath();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+      if (template != null) {
+          try {
+              template = new URI(template).normalize().getPath();
+          } catch (URISyntaxException e) {
+              throw new RuntimeException(e.getMessage(), e);
+          }
+      }
+      return template;
     }
-    return template;
-}
-    private boolean isValidTemplate(HttpServletRequest request, String template) {
+
+    private static boolean isValidTemplate(HttpServletRequest request, String template) {
         return template != null && template.startsWith("/site/") && !template.endsWith("Page.jsp") &&
                 !template.equals(request.getAttribute(Names.JEASE_SITE_DISPATCHER));
     }
 
-    void forwardPageByDesign(ServletContext application, PageContext pageContext, HttpServletRequest request,
+    private static void forwardPageByDesign(ServletContext application, PageContext pageContext, HttpServletRequest request,
             HttpServletResponse response, String design) throws ServletException, IOException {
         if (design != null) {
             if (design.startsWith("/")) {
